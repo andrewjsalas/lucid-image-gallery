@@ -1,9 +1,10 @@
 import { Button, Container, Form, Row, Col, Card } from "react-bootstrap"
 import { useState, useEffect } from "react"
-import { storage, } from "../firebase"
-import { ref, uploadBytesResumable, getDownloadURL, list, listAll} from 'firebase/storage'
+import { storage } from "../firebase"
+import { ref, uploadBytesResumable, getDownloadURL, listAll } from 'firebase/storage'
 import { v4 } from 'uuid'
 import Masonry from "masonry-layout"
+import ImageGrid from "../components/ImageGrid"
 
 const Home = () => {
   const [image, setImage] = useState(null)
@@ -15,15 +16,15 @@ const Home = () => {
     setImage(e.target.files[0])
   }
 
-  // uplods the image
+  // uplods the image 
   const handleUpload = () => {
     if (!image) {
       alert('Please upload an image (png, jpg, or jpgeg)')
     }
     // Create reference to firebase storage and create new image folder
     // Also assigns random ID to each image
-    const storageRef = ref(storage, `images/${image.name + v4()}`)
-    const uploadTask = uploadBytesResumable(storageRef, image)
+    const imageRef = ref(storage, `images/${image.name + v4()}`)
+    const uploadTask = uploadBytesResumable(imageRef, image)
 
     // Update upload progress
     uploadTask.on('state_changed',
@@ -38,25 +39,14 @@ const Home = () => {
       () => {
         // Get image firebase url
         getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+          setImageUrls(url)
           console.log(url)
         })
       }
     )
   }
 
-  // Grab images from storage and list them 
-  const imagesListRef = ref(storage, 'images/')
 
-  useEffect(() => {
-    listAll(imagesListRef).then((response) => {
-      response.items.forEach((item) => {
-        getDownloadURL(item).then((url) => {
-          setImageUrls((prev) => [...prev, url])
-        })
-      })
-    })
-  }, )
-  
   return (
     <>
     <Container>
@@ -84,16 +74,23 @@ const Home = () => {
       
       <hr />
 
-      {/* Image grid */}
       <Row>
-        {imageUrls.map((url, v4) => (
-          <Col key={v4} xs={12} md={4} lg={3}>
-            <Card >
-              <Card.Img src={url} />
-            </Card>
-          </Col>
-        ))}
+        <Col>
+          <Card className='card fluid'>
+            {
+              imageUrls &&
+              <Card.Img 
+                className='card-image'
+                src={imageUrls} 
+                alt='Uploaded file' 
+              />
+            }
+          </Card>
+        </Col>
       </Row>
+
+
+      <ImageGrid />
 
     </Container>
       

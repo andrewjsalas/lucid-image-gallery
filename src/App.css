@@ -5,3 +5,13 @@
 .nav-link:hover {
   color: steelblue !important;
 }
+
+.card {
+  max-width: 20rem;
+  height: auto;
+}
+
+.card-image {
+  max-width: 20rem;
+  height: auto;
+}
